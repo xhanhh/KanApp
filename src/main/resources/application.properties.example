@@ -1,0 +1,5 @@
+spring.application.name=kan-webapp
+spring.datasource.url=jdbc:mysql://<server ip>:3306/<db name>
+spring.datasource.username=<db un>
+spring.datasource.password=<db pw>
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
