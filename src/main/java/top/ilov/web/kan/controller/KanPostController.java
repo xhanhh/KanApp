@@ -3,6 +3,7 @@ package top.ilov.web.kan.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import top.ilov.web.kan.annotation.LoginRequire;
 import top.ilov.web.kan.common.Result;
 import top.ilov.web.kan.dto.post.PostDTO;
 import top.ilov.web.kan.dto.post.PostSubmitDTO;
@@ -43,9 +44,11 @@ public class KanPostController {
         return postService.getPostById(id);
     }
 
+    @LoginRequire
     @PostMapping
-    public Result<String> addPost(@RequestBody PostSubmitDTO postSubmitDTO) {
-        return postService.addPost(postSubmitDTO);
+    public Result<String> addPost(@RequestBody PostSubmitDTO postSubmitDTO,
+                                  @RequestHeader(value = "Authorization", required = false) String token) {
+        return postService.addPost(postSubmitDTO, token);
     }
 
 }

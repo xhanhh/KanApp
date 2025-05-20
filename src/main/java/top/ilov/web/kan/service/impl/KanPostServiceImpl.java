@@ -9,10 +9,12 @@ import top.ilov.web.kan.common.Result;
 import top.ilov.web.kan.common.StatusCode;
 import top.ilov.web.kan.common.TimeProvider;
 import top.ilov.web.kan.common.service.DTOService;
+import top.ilov.web.kan.common.service.JwtService;
 import top.ilov.web.kan.dto.post.PostDTO;
 import top.ilov.web.kan.dto.post.PostSubmitDTO;
 import top.ilov.web.kan.entity.KanContent;
 import top.ilov.web.kan.entity.KanPost;
+import top.ilov.web.kan.entity.KanUser;
 import top.ilov.web.kan.mapper.KanContentMapper;
 import top.ilov.web.kan.mapper.KanPostMapper;
 import top.ilov.web.kan.service.IKanPostService;
@@ -32,6 +34,9 @@ public class KanPostServiceImpl extends ServiceImpl<KanPostMapper, KanPost> impl
 
     @Autowired
     private DTOService dtoService;
+
+    @Autowired
+    private JwtService jwtService;
 
     @Autowired
     private KanContentMapper contentMapper;
@@ -63,13 +68,13 @@ public class KanPostServiceImpl extends ServiceImpl<KanPostMapper, KanPost> impl
             return Result.error(StatusCode.EMPTY_BODY, "主题ID有误");
         }
 
-        KanPost post = this.baseMapper.selectById(postId);
+        KanPost post = this.getById(postId);
         if (post == null || post.getIsDel() == 1) {
             return Result.error(StatusCode.NOT_FOUND, "该主题不存在");
         }
 
         post.setVisitCount(post.getVisitCount() + 1);
-        this.baseMapper.updateById(post);
+        this.updateById(post);
 
         return Result.success("阅读标记成功");
 
@@ -82,7 +87,7 @@ public class KanPostServiceImpl extends ServiceImpl<KanPostMapper, KanPost> impl
             return Result.error(StatusCode.EMPTY_BODY, "主题ID有误");
         }
 
-        KanPost post = this.baseMapper.selectById(postId);
+        KanPost post = this.getById(postId);
         if (post == null || post.getIsDel() == 1) {
             return Result.error(StatusCode.NOT_FOUND, "该主题不存在");
         }
@@ -92,9 +97,14 @@ public class KanPostServiceImpl extends ServiceImpl<KanPostMapper, KanPost> impl
     }
 
     @Override
-    public Result<String> addPost(PostSubmitDTO postSubmitDTO) {
+    public Result<String> addPost(PostSubmitDTO postSubmitDTO, String token) {
 
-        Long userId = 0L;
+        KanUser user = jwtService.getUserFromToken(token);
+        if (user == null) {
+            return Result.error(StatusCode.TOKEN_INVALID, "用户Token无效或已过期");
+        }
+
+        Long userId = user.getId();
 
         if (StringUtils.isBlank(postSubmitDTO.getTitle()) ||
                 StringUtils.isBlank(postSubmitDTO.getContent())) {
@@ -105,7 +115,7 @@ public class KanPostServiceImpl extends ServiceImpl<KanPostMapper, KanPost> impl
         post.setCreatedOn(getCurrentTime());
         post.setModifiedOn(getCurrentTime());
         post.setUserId(userId);
-        this.baseMapper.insert(post);
+        this.save(post);
 
         insertKanContent(postSubmitDTO.getTitle(), 100, (byte) 0, post.getId(), userId);
         insertKanContent(postSubmitDTO.getContent(), 101, (byte) 2, post.getId(), userId);

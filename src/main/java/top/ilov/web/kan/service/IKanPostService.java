@@ -19,7 +19,7 @@ public interface IKanPostService extends IService<KanPost> {
 
     Result<IPage<PostDTO>> getPostByPage(Byte orderBy, int page, int pageSize);
     Result<String> readPost(Long postId);
-    Result<String> addPost(PostSubmitDTO postSubmitDTO);
+    Result<String> addPost(PostSubmitDTO postSubmitDTO, String token);
     Result<PostDTO> getPostById(Long postId);
 
 }
