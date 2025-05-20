@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.ilov.web.kan.dto.ContentDTO;
 import top.ilov.web.kan.dto.post.PostDTO;
+import top.ilov.web.kan.dto.user.UserCallbackDTO;
+import top.ilov.web.kan.dto.user.UserDTO;
 import top.ilov.web.kan.entity.KanContent;
 import top.ilov.web.kan.entity.KanPost;
+import top.ilov.web.kan.entity.KanUser;
 import top.ilov.web.kan.mapper.KanContentMapper;
 
 import java.util.List;
@@ -45,6 +48,25 @@ public class DTOService {
         ContentDTO contentDTO = new ContentDTO();
         BeanUtils.copyProperties(content, contentDTO);
         return contentDTO;
+
+    }
+
+    public UserDTO userToUserDTO(KanUser user) {
+
+        if (user == null) return null;
+
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(user, userDTO);
+        return userDTO;
+
+    }
+
+    public UserCallbackDTO compUserCallbackDTO(String token, UserDTO userInfo) {
+
+        UserCallbackDTO userCallbackDTO = new UserCallbackDTO();
+        userCallbackDTO.setToken(token);
+        userCallbackDTO.setUserInfo(userInfo);
+        return userCallbackDTO;
 
     }
 }
